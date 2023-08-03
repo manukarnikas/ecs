@@ -18,10 +18,10 @@ const HeaderComponent = () => {
     return (
         <Header className="header">
             <Menu className="menu-wrapper" theme="dark" mode="horizontal">
-            <Menu.Item>
-                <h2 className="title">My Canvas</h2>
+            <Menu.Item key="title">
+                <h1 className="title">My Canvas</h1>
             </Menu.Item>
-            <Menu.Item>
+            <Menu.Item key="avatar">
                 <Popover content={popoverMenu} trigger="click">
                     {avatarUrl ? (
                         <Avatar src={avatarUrl} />
