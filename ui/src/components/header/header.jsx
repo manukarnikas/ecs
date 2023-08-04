@@ -12,18 +12,19 @@ const HeaderComponent = () => {
 
     const logout = ()=>{
         setUser({});
-        window.location.assign("/");
+        window.location.assign("/login");
     }
 
     const popoverMenu = (
-        <>
+        <div style={{ cursor: 'pointer'}}>
             <div>
-                {user?.username}
+                Hi {user?.username}
             </div>
+            <hr/>
             <div onClick={()=> logout()}>
                 Logout
             </div>
-        </>
+        </div>
     );
 
     return (

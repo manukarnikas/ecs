@@ -1,7 +1,6 @@
-import React, { useState} from "react";
+import React, { useEffect, useState} from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HeaderComponent from "./components/header/header";
-import FooterComponent from "./components/footer/footer";
 import CanvasList from './components/canvas/canvas-list/CanvasList';
 import CanvasBoard from "./components/canvas/canvas-board/CanvasBoard";
 import Signup from "./components/signup/Signup";
@@ -18,6 +17,12 @@ function App() {
 
   const [user,setUser] = useState({});
 
+  useEffect(()=>{
+    if( !Object.keys(user)?.length && !window.location.pathname.includes('login')){
+      window.location.assign('/login');
+    }
+  },[user]);
+
   return (
     <>
      <UserContext.Provider value={{ user, setUser}}>
@@ -29,12 +34,11 @@ function App() {
             <Route path="/board/create" element={<CanvasBoard/>} />
             <Route path="/boards" element={<CanvasList/>} /> 
             <Route path="/signup" element={<Signup/>} /> 
-            <Route path="/" element={<Login/>} /> 
+            <Route path="/login" element={<Login/>} /> 
             <Route path="*" element={<NotFound />} /> 
           </Routes>
         </BrowserRouter>
       </Content>
-      <FooterComponent />
       </UserContext.Provider>
     </>
   );

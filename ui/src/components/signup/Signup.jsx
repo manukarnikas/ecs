@@ -39,7 +39,7 @@ const Signup = () => {
                     status: true,
                     message: 'User Created Successfully!'
                 });
-                navigate('/');
+                navigate('/login');
             })
             .catch(function (error) {
                 setFailureAlert({
