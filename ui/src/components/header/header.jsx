@@ -16,12 +16,12 @@ const HeaderComponent = () => {
     }
 
     const popoverMenu = (
-        <div style={{ cursor: 'pointer'}}>
+        <div>
             <div>
                 Hi {user?.username}
             </div>
             <hr/>
-            <div onClick={()=> logout()}>
+            <div  style={{ cursor: 'pointer'}} onClick={()=> logout()}>
                 Logout
             </div>
         </div>
