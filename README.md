@@ -10,3 +10,4 @@ Server Port: 3008
 Server Env:
 DB_HOST
 S3_BUCKET
+REGION

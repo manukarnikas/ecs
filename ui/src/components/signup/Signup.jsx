@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Upload, Modal, Alert } from 'antd';
+import { Form, Input, Button, Upload, Modal, Alert, message } from 'antd';
 import { UserOutlined, LockOutlined, PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import './Signup.css';
@@ -11,9 +11,11 @@ const Signup = () => {
         username: '',
         password: '',
         confirmpassword: '',
-        thumbnailData: ''
+        thumbnailData: '',
+        type: ''
     });
     const [fileList, setFileList] = useState([]);
+    const [isInvalidFile, setIsInvalidFile] = useState(false);
     const [previewOpen, setPreviewOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState('');
     const [previewTitle, setPreviewTitle] = useState('');
@@ -71,10 +73,18 @@ const Signup = () => {
             });
             return;
         }
+        if (isInvalidFile) {
+            setFailureAlert({
+                status: true,
+                message: 'Please Upload only jpeg,jpg and png files'
+            });
+            return;
+        }
         const userData = {
             username: data.username,
             password: data.password,
-            thumbnailData: fileList?.[0]?.thumbUrl
+            thumbnailData: fileList?.[0]?.thumbUrl,
+            type: fileList?.[0]?.type?.split('/')?.[1]
         }
         createUser(userData);
     }
@@ -102,6 +112,21 @@ const Signup = () => {
         setPreviewOpen(true);
         setPreviewTitle(file.name || file.url?.substring(file.url?.lastIndexOf('/') + 1));
     };
+
+    const validateFileType = (file)=>{
+        const validFileTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+        const isFileTypeValid = validFileTypes.includes(file.type);
+        if (!isFileTypeValid) {
+            setFailureAlert({
+                status: true,
+                message: 'File should be of type jpeg,jpg and png'
+            });
+            setIsInvalidFile(true);
+        }else{
+            setIsInvalidFile(false);
+        }
+        return isFileTypeValid;
+    }
 
     const handleChange = ({ fileList: newFileList }) => setFileList(newFileList);
 
@@ -203,6 +228,7 @@ const Signup = () => {
                     fileList={fileList}
                     onPreview={handlePreview}
                     onChange={handleChange}
+                    beforeUpload={validateFileType}
                 >
                     {fileList.length > 0 ? null : (
                         <div>
