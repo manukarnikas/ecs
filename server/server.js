@@ -1,4 +1,5 @@
 const UserController = require("./controller/UserController");
+const BoardController  = require("./controller/BoardController");
 const { dbInit } = require("./database/Database");
 const express = require("express");
 const cors = require("cors");
@@ -25,13 +26,22 @@ const init = async () => {
       })
     });
 
+    const boardRouter = express.Router({ mergeParams: true });
+    boardRouter.get('/boards',BoardController.getBoards);
+    boardRouter.get('/board/:boardId',BoardController.getBoard);
+    boardRouter.post('/board',BoardController.createBoard);
+    boardRouter.put('/board/:boardId',BoardController.updateBoard);
+    boardRouter.delete('/board/:boardId',BoardController.deleteBoard);
+
     const userRouter = express.Router();
     userRouter.post('/signup',UserController.signup);
+    userRouter.post('/login',UserController.login);
+    userRouter.use('/:userId',boardRouter);
+   
 
     const apiRouter = express.Router();
     apiRouter.use('/user',userRouter);
-    // apiRouter.use('/board',boardRouter);
-
+ 
     app.use("/health", healthCheckRouter);
     app.use("/api", apiRouter);
    

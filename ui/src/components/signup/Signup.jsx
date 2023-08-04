@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Upload, Modal, Alert, message } from 'antd';
+import { Form, Input, Button, Upload, Modal, Alert } from 'antd';
 import { UserOutlined, LockOutlined, PlusOutlined } from '@ant-design/icons';
 import axios from 'axios';
 import './Signup.css';
@@ -51,7 +51,6 @@ const Signup = () => {
     };
 
     const onFinish = () => {
-        console.log('filelist',fileList)
         if (!data.username) {
             setFailureAlert({
                 status: true,

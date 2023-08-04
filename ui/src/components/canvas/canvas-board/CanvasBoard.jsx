@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Button, Alert } from "antd";
+import React, { useState, useEffect, useRef, useContext } from "react";
+import { useNavigate } from 'react-router-dom';
+import { UserContext } from "../../../App";
+import { Button, Alert, Input, Space } from "antd";
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import './CanvasBoard.css';
@@ -8,11 +10,22 @@ const CanvasBoard = () => {
 
     const [drawing, setDrawing] = useState([]);
     const [isDrawing, setIsDrawing] = useState(false);
-    const [successAlert, setSuccessAlert] = useState(false);
-    const [failureAlert, setFailureAlert] = useState(false);
+    const [boardName, setBoardName] = useState('');
+    const [successAlert, setSuccessAlert] = useState({
+        status: false,
+        message: ""
+    });
+    const [failureAlert, setFailureAlert] = useState({
+        status: false,
+        message: ""
+    });
 
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
+
+    const navigate = useNavigate('/boards');
+
+    const { user } = useContext(UserContext);
 
     const { id } = useParams();
 
@@ -27,38 +40,83 @@ const CanvasBoard = () => {
         contextRef.current = context;
     }, []);
 
-    useEffect(() => {
-        if (id) {
-            restore();
-        }
-    }, [drawing])
-
     const getBoard = (id) => {
         const url = process.env.REACT_APP_BASE_URL;
         axios
-            .get(`${url}/board/${id}`)
+            .get(`${url}/user/${user._id}/board/${id}`)
             .then(function (response) {
+                setBoardName(response?.data?.name);
                 setDrawing(response?.data?.points);
+                restore(response?.data?.points);
             })
             .catch(function (error) {
                 console.log(error);
             });
     };
 
-    const save = (data) => {
+    const save = () => {
         const url = process.env.REACT_APP_BASE_URL;
-        axios
-            .post(`${url}/board`, {
-                points: data,
+        if(id){
+            axios
+            .put(`${url}/user/${user._id}/board/${id}`, {
+                userId: user._id,
+                _id: id,
+                name: boardName,
+                points: drawing
             })
             .then(function (response) {
-               setSuccessAlert(true);
+               setSuccessAlert({
+                    status: true,
+                    message: "Board updated successfully!"
+               });
             })
             .catch(function (error) {
-                setFailureAlert(true);
+                setFailureAlert({
+                    status: true,
+                    message: error.message
+               });
+               console.error(error);
+            });
+        }else{
+            axios
+            .post(`${url}/user/${user._id}/board`, {
+                userId: user._id,
+                name: boardName,
+                points: drawing
+            })
+            .then(function (response) {
+                setSuccessAlert({
+                    status: true,
+                    message: "Board created successfully!"
+               });
+            })
+            .catch(function (error) {
+                setFailureAlert({
+                    status: true,
+                    message: error.message
+               });
                 console.error(error);
             });
+        }
     };
+
+    const validate = ()=>{
+        if(!boardName){
+            setFailureAlert({
+                status: true,
+                message: "Board name is required"
+            });
+            return;
+        }
+        if(!drawing?.length){
+            setFailureAlert({
+                status: true,
+                message: "No data to save"
+            });
+            return;
+        }
+        save();
+    }
 
     const start = ({ nativeEvent }) => {
         const { offsetX, offsetY } = nativeEvent;
@@ -92,10 +150,10 @@ const CanvasBoard = () => {
         setDrawing([]);
     };
 
-    const restore = () => {
+    const restore = (points) => {
         contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
         contextRef.current.beginPath();
-        drawing.forEach((point, index) => {
+        points.forEach((point, index) => {
             if (index === 0) {
                 contextRef.current.moveTo(point.x, point.y);
             } else {
@@ -117,7 +175,7 @@ const CanvasBoard = () => {
         <>
             {successAlert.status ?
                 <Alert
-                    message={`Board saved successfully!`}
+                    message={successAlert.message}
                     type="success"
                     closable
                     onClose={() => onSuccessClose()}
@@ -125,12 +183,15 @@ const CanvasBoard = () => {
                 : null}
             {failureAlert.status ?
                 <Alert
-                    message={`Failed to save Board!`}
+                    message={failureAlert.message}
                     type="error"
                     closable
                     onClose={() => onFailureClose()}
                 />
                 : null}
+            <br/><br/>
+            <Space size={"middle"} direction="vertical">
+            <Input value={boardName} onChange={(e) => setBoardName(e.target.value)} placeholder="Board Name" />
             <canvas
                 className="canvas-wrapper"
                 ref={canvasRef}
@@ -142,9 +203,14 @@ const CanvasBoard = () => {
                 onMouseLeave={stop}
             >
             </canvas>
-            <br />
-            <br />
             <div style={{ float: 'right' }}>
+                <Button
+                    type="default"
+                    onClick={() => navigate('/boards')}
+                >
+                    Back
+                </Button>
+                &ensp;
                 <Button
                     type="primary"
                     onClick={() => clear()}
@@ -155,11 +221,12 @@ const CanvasBoard = () => {
                 <Button
                     type="primary"
                     danger
-                    onClick={() => save(drawing)}
+                    onClick={() => validate()}
                 >
                     Save
                 </Button>
             </div>
+            </Space>
         </>
     );
 }

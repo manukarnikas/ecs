@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState} from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import HeaderComponent from "./components/header/header";
 import FooterComponent from "./components/footer/footer";
@@ -7,17 +7,20 @@ import CanvasBoard from "./components/canvas/canvas-board/CanvasBoard";
 import Signup from "./components/signup/Signup";
 import Login from "./components/login/Login";
 import NotFound from "./components/NotFound/NotFound";
-
 import { Layout } from "antd";
-
 import "./App.css";
 
 const { Content } = Layout;
 
+export const UserContext = React.createContext();
+
 function App() {
+
+  const [user,setUser] = useState({});
 
   return (
     <>
+     <UserContext.Provider value={{ user, setUser}}>
       <HeaderComponent />
       <Content className="content-wrapper">
         <BrowserRouter>
@@ -32,6 +35,7 @@ function App() {
         </BrowserRouter>
       </Content>
       <FooterComponent />
+      </UserContext.Provider>
     </>
   );
 }

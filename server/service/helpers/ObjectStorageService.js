@@ -8,8 +8,11 @@ async function createFolderAndUploadFile(bucketName, folderName, fileContent,fil
       Bucket: bucketName,
       Key: `${folderName}/${"thumbnail"}.${fileType}`,
       Body: fileContent,
-      ContentType: `image/${fileType}`
+      ContentType: `image/${fileType}`,
+      ACL: 'public-read',
     };
+
+    console.log('params',params)
 
     await s3.putObject(params).promise();
     console.log(`File  uploaded to folder "${folderName}" in bucket "${bucketName}"`);

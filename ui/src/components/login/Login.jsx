@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Form, Input, Button, Alert } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { UserContext } from '../../App';
 import axios from 'axios';
 import './Login.css';
 
@@ -20,19 +21,20 @@ const Login = () => {
         message: ''
     });
 
+    const { setUser } = useContext(UserContext);
+
     const navigate = useNavigate();
 
     const userLogin = (userData)=>{
         const url = process.env.REACT_APP_BASE_URL;
         axios
-            .post(`${url}/user/login`, {
-                data: userData
-            })
+            .post(`${url}/user/login`,userData)
             .then(function (response) {
                 setSuccessAlert({
                     status: true,
                     message: 'Login Successfull!'
                 });
+                setUser(response?.data);
                 navigate('/boards');
             })
             .catch(function (error) {

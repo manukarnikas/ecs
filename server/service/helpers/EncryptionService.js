@@ -13,6 +13,17 @@ async function encodePassword(password) {
   }
 }
 
+async function comparePassword(password, hashedPassword) {
+  try {
+    const match = await bcrypt.compare(password,hashedPassword);
+    return match;
+  } catch (err) {
+    console.error('Error encrypting the password:', err);
+    throw err; 
+  }
+}
+
 module.exports = {
-    encodePassword
+    encodePassword,
+    comparePassword
 }
